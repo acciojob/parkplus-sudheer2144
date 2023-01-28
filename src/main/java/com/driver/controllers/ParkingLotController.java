@@ -21,16 +21,14 @@ public class ParkingLotController {
     @PostMapping("/add")
     public ResponseEntity<ParkingLot> addParkingLot(@RequestParam String name, @RequestParam String address) {
         //add a new parking lot to the database
-        ParkingLot newParkingLot = parkingLotService.addParkingLot(name,address);
-        return new ResponseEntity<>(newParkingLot, HttpStatus.CREATED);
+        return new ResponseEntity<>(parkingLotService.addParkingLot(name,address), HttpStatus.CREATED);
     }
 
     @PostMapping("/{parkingLotId}/spot/add")
     public ResponseEntity<Spot> addSpot(@PathVariable int parkingLotId, @RequestParam Integer numberOfWheels, @RequestParam Integer pricePerHour) {
         //create a new spot in the parkingLot with given id
         //the spot type should be the next biggest type in case the number of wheels are not 2 or 4, for 4+ wheels, it is others
-        Spot newSpot=parkingLotService.addSpot(parkingLotId,numberOfWheels,pricePerHour);
-        return new ResponseEntity<>(newSpot, HttpStatus.CREATED);
+        return new ResponseEntity<>(parkingLotService.addSpot(parkingLotId,numberOfWheels,pricePerHour), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/spot/{spotId}/delete")
@@ -43,8 +41,7 @@ public class ParkingLotController {
     @PutMapping("/{parkingLotId}/spot/{spotId}/update")
     public ResponseEntity<Spot> updateSpot(@PathVariable int parkingLotId, @PathVariable int spotId, @RequestParam int pricePerHour) {
         //update the details of a spot
-        Spot updatedSpot=parkingLotService.updateSpot(parkingLotId,spotId,pricePerHour);
-        return new ResponseEntity<>(updatedSpot, HttpStatus.OK);
+        return new ResponseEntity<>(parkingLotService.updateSpot(parkingLotId,spotId,pricePerHour), HttpStatus.OK);
     }
 
     @DeleteMapping("/{parkingLotId}/delete")
