@@ -46,11 +46,11 @@ public class ReservationServiceImpl implements ReservationService {
         for(Spot spot:spotList){
             int spotWheels = getReqSpotWheels(spot);
             if(spotWheels>=numberOfWheels && !spot.getOccupied()){
-                //if(spotWheels<wheels){
-                    //wheels=spotWheels;
+                if(spotWheels<wheels){
+                    wheels=spotWheels;
                     createdSpot=spot;
                     break;
-                //}
+                }
             }
         }
         if(createdSpot==null){
