@@ -28,10 +28,10 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation=new Reservation();
 
         if(!userRepository3.existsById(userId)){
-            throw new RuntimeException("The Reservation cannot be made");
+            throw new RuntimeException("Cannot make reservation");
         }
         if(!parkingLotRepository3.existsById(parkingLotId)){
-            throw new RuntimeException("The Reservation cannot be made");
+            throw new RuntimeException("Cannot make reservation");
         }
 
         ParkingLot parkingLot=parkingLotRepository3.findById(parkingLotId).get();
@@ -45,15 +45,16 @@ public class ReservationServiceImpl implements ReservationService {
 
         for(Spot spot:spotList){
             int spotWheels = getReqSpotWheels(spot);
-            if(spotWheels>=numberOfWheels && spot.getOccupied()==false){
-                if(spotWheels<wheels){
-                    wheels=spotWheels;
+            if(spotWheels>=numberOfWheels && !spot.getOccupied()){
+                //if(spotWheels<wheels){
+                    //wheels=spotWheels;
                     createdSpot=spot;
-                }
+                    break;
+                //}
             }
         }
         if(createdSpot==null){
-            throw new RuntimeException("The Reservation cannot be made");
+            throw new RuntimeException("Cannot make reservation");
         }
 
         createdSpot.setOccupied(true);

@@ -1,6 +1,7 @@
 package com.driver.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,7 +13,7 @@ public class ParkingLot {
     private String address;
 
     @OneToMany(mappedBy = "parkingLot",cascade = CascadeType.ALL)
-    private List<Spot> spotList;
+    private List<Spot> spotList=new ArrayList<>();
 
     public ParkingLot(int id, String name, String address, List<Spot> spotList) {
         this.id = id;

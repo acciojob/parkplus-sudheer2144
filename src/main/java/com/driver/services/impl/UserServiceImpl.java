@@ -15,8 +15,7 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository4;
     @Override
     public void deleteUser(Integer userId) {
-        User user=userRepository4.findById(userId).get();
-        userRepository4.delete(user);
+        userRepository4.deleteById(userId);
     }
 
     @Override
@@ -30,7 +29,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(String name, String phoneNumber, String password) {
 
-        User user=new User(name,phoneNumber,password);
+        User user=new User();
+        user.setPassword(password);
+        user.setName(name);
+        user.setPhoneNumber(phoneNumber);
 
         userRepository4.save(user);
 
