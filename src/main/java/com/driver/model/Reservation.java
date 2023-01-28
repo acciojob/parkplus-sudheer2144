@@ -28,10 +28,6 @@ public class Reservation {
         this.payment = payment;
     }
 
-    public Reservation(int numberOfHours) {
-        this.numberOfHours = numberOfHours;
-    }
-
     public Reservation() {
     }
 

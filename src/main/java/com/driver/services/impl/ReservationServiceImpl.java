@@ -25,70 +25,69 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation reserveSpot(Integer userId, Integer parkingLotId, Integer timeInHours, Integer numberOfWheels) throws Exception {
 
-        Reservation reservation=new Reservation();
-
-        if(!userRepository3.existsById(userId)){
+        if(!userRepository3.findById(userId).isPresent() || !parkingLotRepository3.findById(parkingLotId).isPresent()){
             throw new RuntimeException("Cannot make reservation");
         }
-        if(!parkingLotRepository3.existsById(parkingLotId)){
-            throw new RuntimeException("Cannot make reservation");
-        }
-
-        ParkingLot parkingLot=parkingLotRepository3.findById(parkingLotId).get();
-        User user=userRepository3.findById(userId).get();
-
-        List<Spot> spotList=parkingLot.getSpotList();
 
         Spot createdSpot=null;
+        User user = userRepository3.findById(userId).get();
+        ParkingLot parkingLot=parkingLotRepository3.findById(parkingLotId).get();
 
-        int wheels=Integer.MAX_VALUE;
+        List<Spot> parkingSpotList=parkingLot.getSpotList();
 
-        for(Spot spot:spotList){
-            int spotWheels = getReqSpotWheels(spot);
-            if(spotWheels>=numberOfWheels && !spot.getOccupied()){
-                if(spotWheels<wheels){
-                    wheels=spotWheels;
+        int minPrice = Integer.MAX_VALUE;
+
+        SpotType reqSpot=getReqSpotType(numberOfWheels);
+
+        SpotType twoWheeler=SpotType.TWO_WHEELER;
+        SpotType fourWheeler=SpotType.FOUR_WHEELER;
+        SpotType others=SpotType.OTHERS;
+
+        for(Spot spot:parkingSpotList){
+            SpotType spotType=spot.getSpotType();
+            if(reqSpot.equals(twoWheeler) && (spotType.equals(twoWheeler)||spotType.equals(fourWheeler)||spotType.equals(others)) && !spot.getOccupied()){
+                int price = spot.getPricePerHour()*numberOfWheels;
+                if(price < minPrice){
+                    minPrice=price;
                     createdSpot=spot;
-                    break;
+                }
+            }
+            else if(reqSpot.equals(fourWheeler) && spotType.equals(fourWheeler)||spotType.equals(others) && !spot.getOccupied()){
+                int price = spot.getPricePerHour()*numberOfWheels;
+                if(price < minPrice){
+                    minPrice=price;
+                    createdSpot=spot;
+                }
+            }
+            else if(reqSpot.equals(others) && spotType.equals(others) && !spot.getOccupied()){
+                int price = spot.getPricePerHour()*numberOfWheels;
+                if(price < minPrice){
+                    minPrice=price;
+                    createdSpot=spot;
                 }
             }
         }
+
         if(createdSpot==null){
             throw new RuntimeException("Cannot make reservation");
         }
 
-        createdSpot.setOccupied(true);
+        Reservation reservation = new Reservation();
         reservation.setSpot(createdSpot);
-        reservation.setNumberOfHours(timeInHours);
         reservation.setUser(user);
+        reservation.setNumberOfHours(timeInHours);
 
-        List<Reservation> spotReservations=createdSpot.getReservationList();
-        if(spotReservations==null){
-            spotReservations=new ArrayList<>();
-        }
-        spotReservations.add(reservation);
-        createdSpot.setReservationList(spotReservations);
+        createdSpot.getReservationList().add(reservation);
 
-        List<Reservation> userReservations=user.getReservationList();
-        if(userReservations==null){
-            userReservations=new ArrayList<>();
-        }
-        userReservations.add(reservation);
-        user.setReservationList(userReservations);
+        user.getReservationList().add(reservation);
 
-        userRepository3.save(user);
         spotRepository3.save(createdSpot);
-        parkingLotRepository3.save(parkingLot);
+        userRepository3.save(user);
 
         return reservation;
     }
 
-    public int getReqSpotWheels(Spot GivenSpot){
-        int wheels=2;
-        if(GivenSpot.getSpotType().equals(SpotType.OTHERS)){wheels=5;}
-        if(GivenSpot.getSpotType().equals(SpotType.FOUR_WHEELER)){wheels=4;}
-        return wheels;
-    }
+
     public SpotType getReqSpotType(int wheels){
         SpotType spotType=SpotType.TWO_WHEELER;
         if(wheels>4){spotType=SpotType.OTHERS;}
